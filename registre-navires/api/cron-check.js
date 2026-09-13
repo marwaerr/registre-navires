@@ -1,11 +1,10 @@
-import { kv } from '@vercel/kv';
+import { Redis } from '@upstash/redis';
 import { Resend } from 'resend';
 
+const kv = Redis.fromEnv();
 const resend = new Resend(process.env.RESEND_API_KEY);
 const THRESHOLD_DAYS = parseInt(process.env.ALERT_THRESHOLD_DAYS || '2', 10);
 
-// REGION_EMAILS doit être un JSON du type:
-// {"Casablanca-Settat":"casa-team@example.com","Tanger-Tetouan":"tanger-team@example.com"}
 function getRegionEmailMap() {
   try {
     return JSON.parse(process.env.REGION_EMAILS || '{}');
@@ -61,7 +60,6 @@ export default async function handler(req, res) {
     return res.status(200).json({ sent: false, reason: 'Rien à signaler aujourd’hui.' });
   }
 
-  // Regrouper par région (les navires sans région vont dans le lot "non assigné")
   const byRegion = {};
   for (const v of [...urgent, ...missingEta]) {
     const key = v.region || '__unassigned__';
