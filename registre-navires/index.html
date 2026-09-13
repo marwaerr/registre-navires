@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Registre — Inspections à destination</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@500;600;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap');
+
+  :root{
+    --ink: #1B3327;
+    --paper: #F5FBF3;
+    --paper-dim: #E7F4E6;
+    --green-deep: #1F5C3F;
+    --green: #3F9463;
+    --green-bg: #DEF3E1;
+    --coral: #E8703A;
+    --coral-bg: #FCE9DB;
+    --steel-bg: #E7EEEC;
+    --rule: #CFE6D2;
+    --steel: #5E7A6B;
+  }
+
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;background:var(--paper);color:var(--ink);font-family:'Inter',sans-serif;}
+  body{
+    padding:36px 20px 90px;
+    background:
+      radial-gradient(circle at 12% 0%, #E3F4E1 0%, transparent 45%),
+      radial-gradient(circle at 100% 15%, #EAF7EA 0%, transparent 40%),
+      var(--paper);
+  }
+
+  .wrap{max-width:980px;margin:0 auto;}
+
+  header{margin-bottom:30px;}
+  .header-row{display:flex;align-items:center;gap:14px;}
+  .boat-icon{
+    width:46px;height:46px;flex-shrink:0;
+    background:var(--green-deep);border-radius:14px;
+    display:flex;align-items:center;justify-content:center;font-size:22px;
+  }
+  header h1{
+    font-family:'Quicksand',sans-serif;font-weight:700;
+    font-size:clamp(24px,4vw,32px);margin:0;color:var(--green-deep);letter-spacing:-0.01em;
+  }
+  header p{margin:4px 0 0 60px;color:var(--steel);font-size:14.5px;}
+  .wave{
+    margin-top:16px;height:8px;
+    background: repeating-linear-gradient(90deg, var(--green) 0 10px, transparent 10px 20px);
+    border-radius:4px;opacity:0.55;
+  }
+
+  .alerts{margin-bottom:26px;}
+  .alert-row{
+    display:flex;align-items:center;gap:14px;
+    border-radius:16px;padding:14px 18px;margin-bottom:10px;border:1.5px solid;
+  }
+  .alert-row.urgent{background:var(--coral-bg);border-color:#F2B893;}
+  .alert-row.info{background:var(--steel-bg);border-color:#C9D6D2;}
+  .alert-row .icon{font-size:18px;flex-shrink:0;}
+  .alert-row .navire{font-family:'IBM Plex Mono',monospace;font-weight:600;font-size:14.5px;color:var(--ink);}
+  .alert-row .msg{font-size:14px;flex:1;}
+  .alert-row.urgent .msg{color:#9A4A1D;}
+  .alert-row.info .msg{color:#3C5A50;}
+  .alerts-empty{
+    display:flex;align-items:center;gap:10px;color:var(--green-deep);font-size:14px;
+    border:1.5px solid var(--rule);border-radius:16px;padding:14px 18px;background:var(--green-bg);
+  }
+
+  .panel{
+    background:#fff;border:1.5px solid var(--rule);border-radius:20px;
+    padding:22px 24px;margin-bottom:26px;box-shadow:0 2px 0 var(--rule);
+  }
+  .panel h2{font-family:'Quicksand',sans-serif;font-size:18px;font-weight:600;margin:0 0 16px;color:var(--green-deep);}
+
+  .form-row{display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end;margin-bottom:16px;}
+  .field{display:flex;flex-direction:column;gap:5px;}
+  .field label{font-size:12px;color:var(--steel);font-weight:500;}
+  .field input, .field select{
+    font-family:'IBM Plex Mono',monospace;font-size:14px;border:1.5px solid var(--rule);
+    background:var(--paper);border-radius:10px;padding:9px 12px;color:var(--ink);min-width:0;
+  }
+  .field input:focus, .field select:focus{outline:none;border-color:var(--green);}
+  #f-name{min-width:180px;flex:1;}
+  #f-company{min-width:170px;flex:1;}
+  #f-destination{min-width:140px;}
+  #f-region{min-width:140px;}
+
+  .btn{
+    font-family:'Inter',sans-serif;font-weight:600;font-size:13.5px;border:none;
+    background:var(--green-deep);color:#fff;padding:10px 20px;cursor:pointer;border-radius:999px;
+    transition: transform 0.12s ease, background 0.15s ease;
+  }
+  .btn:hover{background:var(--green);transform:translateY(-1px);}
+  .btn:active{transform:translateY(0);}
+  .btn.small{padding:6px 14px;font-size:12.5px;}
+  .btn.ghost{background:transparent;color:var(--steel);border:1.5px solid var(--rule);}
+  .btn.ghost:hover{border-color:var(--green);color:var(--green-deep);background:var(--green-bg);}
+
+  .settings-row{display:flex;align-items:center;gap:18px;flex-wrap:wrap;font-size:13.5px;color:var(--steel);}
+  .settings-row .field{flex-direction:row;align-items:center;gap:8px;}
+  .settings-row input[type=number]{width:56px;text-align:center;border-radius:999px;}
+
+  .filter-row{display:flex;align-items:center;gap:10px;padding:18px 24px 0;flex-wrap:wrap;}
+  .filter-row label{font-size:12.5px;color:var(--steel);font-weight:500;}
+  .filter-row select{
+    font-family:'Inter',sans-serif;font-size:13.5px;border:1.5px solid var(--rule);
+    background:var(--paper);border-radius:999px;padding:7px 14px;color:var(--ink);
+  }
+  .filter-row select:focus{outline:none;border-color:var(--green);}
+  .pill-count{
+    font-size:12px;background:var(--green-bg);color:var(--green-deep);
+    padding:3px 10px;border-radius:999px;font-weight:600;
+  }
+
+  table{width:100%;border-collapse:collapse;}
+  thead th{
+    text-align:left;font-size:12px;color:var(--steel);border-bottom:2px solid var(--green-bg);
+    padding:0 10px 10px;font-weight:600;
+  }
+  tbody td{padding:14px 10px;border-bottom:1px solid var(--paper-dim);font-size:14px;vertical-align:middle;}
+  tbody tr:last-child td{border-bottom:none;}
+  tbody tr:hover td{background:var(--paper-dim);}
+  .navire-cell{font-family:'IBM Plex Mono',monospace;font-weight:600;color:var(--green-deep);}
+  .region-tag{
+    font-size:12px;background:var(--steel-bg);color:#3C5A50;padding:3px 10px;border-radius:999px;
+    font-weight:500;white-space:nowrap;
+  }
+  .cell-input{
+    font-family:'IBM Plex Mono',monospace;font-size:13px;border:1.5px solid var(--rule);
+    background:var(--paper);border-radius:8px;padding:6px 9px;color:var(--ink);width:100%;
+  }
+  .cell-input:focus{outline:none;border-color:var(--green);}
+  .reste-cell{font-family:'IBM Plex Mono',monospace;font-size:13px;}
+  .reste-cell.urgent{color:var(--coral);font-weight:600;}
+  .reste-cell.overdue{color:#C0392B;font-weight:600;}
+  .reste-cell.na{color:var(--steel);font-style:italic;}
+  .statut{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;padding:5px 12px;border-radius:999px;font-weight:500;white-space:nowrap;}
+  .statut.ok{background:var(--green-bg);color:var(--green-deep);}
+  .statut.pending{background:var(--coral-bg);color:#9A4A1D;}
+  .statut.na{background:var(--steel-bg);color:#3C5A50;}
+  .actions{display:flex;gap:6px;}
+
+  .empty-state{text-align:center;padding:44px 20px;color:var(--steel);}
+  .empty-state .emoji{font-size:32px;margin-bottom:8px;}
+  .empty-state p{margin:4px 0;font-size:14px;}
+
+  footer{margin-top:24px;font-size:12.5px;color:var(--steel);text-align:center;}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="header-row">
+      <div class="boat-icon">🚢</div>
+      <h1>Registre des inspections à destination</h1>
+    </div>
+    <p>Suivi des ETA navires et des compagnies mandatées — Nutricrops</p>
+    <div class="wave"></div>
+  </header>
+
+  <div class="alerts" id="alerts"></div>
+
+  <div class="panel">
+    <h2>Ajouter un navire au registre</h2>
+    <div class="form-row">
+      <div class="field">
+        <label for="f-name">Nom du navire</label>
+        <input id="f-name" type="text" placeholder="ex. MV ADASTAR">
+      </div>
+      <div class="field">
+        <label for="f-eta">Date ETA (optionnelle)</label>
+        <input id="f-eta" type="date">
+      </div>
+      <div class="field">
+        <label for="f-destination">Destination</label>
+        <input id="f-destination" type="text" placeholder="ex. Port de Jorf Lasfar">
+      </div>
+      <div class="field">
+        <label for="f-region">Région</label>
+        <input id="f-region" type="text" placeholder="ex. Casablanca-Settat">
+      </div>
+      <div class="field">
+        <label for="f-company">Compagnie mandatée (optionnelle)</label>
+        <input id="f-company" type="text" placeholder="ex. Bureau Veritas">
+      </div>
+      <button class="btn" id="add-btn">Ajouter</button>
+    </div>
+    <div class="settings-row">
+      <div class="field">
+        <label for="f-threshold">Alerter à partir de</label>
+        <input id="f-threshold" type="number" min="1" max="30" value="2">
+        <span>jours avant l'ETA</span>
+      </div>
+      <button class="btn ghost small" id="notif-btn">Activer les notifications du navigateur</button>
+      <span id="notif-status"></span>
+    </div>
+  </div>
+
+  <div class="panel" style="padding:0;overflow:hidden;">
+    <div style="padding:22px 24px 4px;"><h2 style="margin-bottom:2px;">Navires suivis</h2></div>
+    <div class="filter-row">
+      <label for="f-filter-region">Filtrer par région</label>
+      <select id="f-filter-region"><option value="">Toutes les régions</option></select>
+      <span class="pill-count" id="filter-count"></span>
+    </div>
+    <div style="padding:16px 24px 22px;">
+      <table id="vessel-table">
+        <thead>
+          <tr>
+            <th>Navire</th>
+            <th>ETA</th>
+            <th>Reste</th>
+            <th>Destination</th>
+            <th>Région</th>
+            <th>Compagnie mandatée</th>
+            <th>Statut</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody id="vessel-body"></tbody>
+      </table>
+      <div class="empty-state" id="empty-state" style="display:none;">
+        <div class="emoji">🌱</div>
+        <p><strong>Aucun navire suivi pour le moment.</strong></p>
+        <p>Ajoute un navire ci-dessus, même sans date ETA, pour démarrer le suivi.</p>
+      </div>
+    </div>
+  </div>
+
+  <footer>Les rappels par email sont envoyés une fois par jour, par région, tant qu'une action est nécessaire.</footer>
+</div>
+
+<script>
+let vessels = [];
+let threshold = parseInt(localStorage.getItem('alert_threshold_days') || '2', 10);
+let filterRegion = '';
+
+async function api(path, options = {}) {
+  const res = await fetch(path, {
+    headers: { 'Content-Type': 'application/json' },
+    ...options,
+  });
+  if (!res.ok) throw new Error('Erreur API: ' + res.status);
+  return res.status === 204 ? null : res.json();
+}
+
+async function loadData(){
+  try{ vessels = await api('/api/vessels'); }
+  catch(e){ console.error(e); vessels = []; }
+  document.getElementById('f-threshold').value = threshold;
+  render();
+}
+
+function daysLeft(eta){ return Math.floor((new Date(eta) - new Date()) / 86400000); }
+function isUrgent(v){ if(!v.eta || v.company) return false; return daysLeft(v.eta) <= threshold; }
+function isMissingEta(v){ return !v.eta && !v.company; }
+
+function fmtDate(iso){
+  if(!iso) return '—';
+  const d = new Date(iso);
+  return d.toLocaleDateString('fr-FR',{day:'2-digit',month:'short',year:'numeric'});
+}
+
+function escapeHtml(str){
+  const d = document.createElement('div');
+  d.textContent = str || '';
+  return d.innerHTML;
+}
+
+function statusBadge(v){
+  if(v.company) return '<span class="statut ok">🌿 Mandaté</span>';
+  if(!v.eta) return '<span class="statut na">ETA à compléter</span>';
+  return '<span class="statut pending">⏳ En attente</span>';
+}
+
+function resteCell(v){
+  if(!v.eta) return '<span class="reste-cell na">—</span>';
+  const d = daysLeft(v.eta);
+  const overdue = d < 0;
+  const cls = overdue ? 'overdue' : (isUrgent(v) ? 'urgent' : '');
+  const label = overdue ? `Dépassé de ${Math.abs(d)}j` : `${d}j`;
+  return `<span class="reste-cell ${cls}">${label}</span>`;
+}
+
+function updateRegionFilterOptions(){
+  const select = document.getElementById('f-filter-region');
+  const current = select.value;
+  const regions = [...new Set(vessels.map(v => v.region).filter(Boolean))].sort();
+  select.innerHTML = '<option value="">Toutes les régions</option>' +
+    regions.map(r => `<option value="${escapeHtml(r)}">${escapeHtml(r)}</option>`).join('');
+  select.value = regions.includes(current) ? current : '';
+  filterRegion = select.value;
+}
+
+function visibleVessels(){
+  return filterRegion ? vessels.filter(v => v.region === filterRegion) : vessels;
+}
+
+function render(){
+  vessels.sort((a,b) => {
+    if(!a.eta && !b.eta) return 0;
+    if(!a.eta) return 1;
+    if(!b.eta) return -1;
+    return new Date(a.eta) - new Date(b.eta);
+  });
+
+  updateRegionFilterOptions();
+  const list = visibleVessels();
+
+  document.getElementById('filter-count').textContent =
+    `${list.length} navire${list.length > 1 ? 's' : ''}`;
+
+  const body = document.getElementById('vessel-body');
+  const emptyState = document.getElementById('empty-state');
+  const table = document.getElementById('vessel-table');
+
+  if(list.length === 0){
+    table.style.display = 'none';
+    emptyState.style.display = 'block';
+  } else {
+    table.style.display = 'table';
+    emptyState.style.display = 'none';
+  }
+
+  body.innerHTML = list.map(v => `
+    <tr>
+      <td class="navire-cell">${escapeHtml(v.name)}</td>
+      <td>
+        <input class="cell-input" type="date" value="${v.eta || ''}"
+          onchange="updateVessel('${v.id}', { eta: this.value || null })">
+      </td>
+      <td>${resteCell(v)}</td>
+      <td>
+        <input class="cell-input" type="text" placeholder="—" value="${escapeHtml(v.destination)}"
+          onchange="updateVessel('${v.id}', { destination: this.value.trim() })">
+      </td>
+      <td>
+        <input class="cell-input" type="text" placeholder="—" value="${escapeHtml(v.region)}"
+          onchange="updateVessel('${v.id}', { region: this.value.trim() })">
+      </td>
+      <td>
+        <input class="cell-input" type="text" placeholder="—" value="${escapeHtml(v.company)}"
+          onchange="updateVessel('${v.id}', { company: this.value.trim() })">
+      </td>
+      <td>${statusBadge(v)}</td>
+      <td class="actions">
+        <button class="btn small ghost" onclick="removeVessel('${v.id}')">Retirer</button>
+      </td>
+    </tr>
+  `).join('');
+
+  renderAlerts();
+}
+
+function renderAlerts(){
+  const box = document.getElementById('alerts');
+  const scope = visibleVessels();
+  const urgent = scope.filter(isUrgent);
+  const missing = scope.filter(isMissingEta);
+
+  if(urgent.length === 0 && missing.length === 0){
+    box.innerHTML = `<div class="alerts-empty"><span>🍃</span> Aucune alerte active${filterRegion ? ' pour ' + escapeHtml(filterRegion) : ''} — tout est sous contrôle.</div>`;
+    return;
+  }
+
+  let html = '';
+  urgent.forEach(v => {
+    const d = daysLeft(v.eta);
+    const msg = d < 0
+      ? `ETA dépassé de ${Math.abs(d)} jour(s) — aucune compagnie mandatée.`
+      : `Reste ${d} jour(s) avant l'ETA — n'oubliez pas de mandater une compagnie d'inspection.`;
+    html += `
+      <div class="alert-row urgent">
+        <span class="icon">⚠️</span>
+        <span class="navire">${escapeHtml(v.name)}</span>
+        ${v.region ? `<span class="region-tag">${escapeHtml(v.region)}</span>` : ''}
+        <span class="msg">${msg}</span>
+      </div>`;
+  });
+  missing.forEach(v => {
+    html += `
+      <div class="alert-row info">
+        <span class="icon">📅</span>
+        <span class="navire">${escapeHtml(v.name)}</span>
+        ${v.region ? `<span class="region-tag">${escapeHtml(v.region)}</span>` : ''}
+        <span class="msg">Date ETA pas encore connue — pense à la compléter dès que possible.</span>
+      </div>`;
+  });
+
+  box.innerHTML = html;
+}
+
+async function addVessel(){
+  const name = document.getElementById('f-name').value.trim();
+  const eta = document.getElementById('f-eta').value || null;
+  const destination = document.getElementById('f-destination').value.trim();
+  const region = document.getElementById('f-region').value.trim();
+  const company = document.getElementById('f-company').value.trim();
+
+  if(!name){ alert('Merci de renseigner le nom du navire.'); return; }
+
+  try{
+    const vessel = await api('/api/vessels', {
+      method: 'POST',
+      body: JSON.stringify({ name, eta, destination, region, company }),
+    });
+    vessels.push(vessel);
+    document.getElementById('f-name').value = '';
+    document.getElementById('f-eta').value = '';
+    document.getElementById('f-destination').value = '';
+    document.getElementById('f-region').value = '';
+    document.getElementById('f-company').value = '';
+    render();
+  }catch(e){ alert('Erreur lors de l’ajout du navire.'); }
+}
+
+async function updateVessel(id, updates){
+  try{
+    const updated = await api('/api/vessels', { method: 'PATCH', body: JSON.stringify({ id, ...updates }) });
+    const idx = vessels.findIndex(v => v.id === id);
+    if(idx !== -1) vessels[idx] = updated;
+    render();
+  }catch(e){ alert('Erreur lors de la mise à jour.'); }
+}
+
+async function removeVessel(id){
+  try{
+    await api('/api/vessels?id=' + encodeURIComponent(id), { method: 'DELETE' });
+    vessels = vessels.filter(v => v.id !== id);
+    render();
+  }catch(e){ alert('Erreur lors de la suppression.'); }
+}
+
+function checkNotifications(){
+  if(!('Notification' in window) || Notification.permission !== 'granted') return;
+  vessels.filter(isUrgent).forEach(v => {
+    const key = 'notified_' + v.id + '_' + new Date().toDateString();
+    if(sessionStorage.getItem(key)) return;
+    const d = daysLeft(v.eta);
+    new Notification('Inspection à mandater', {
+      body: `${v.name} — ${d < 0 ? 'ETA dépassé' : 'reste ' + d + ' jour(s)'} — aucune compagnie mandatée.`
+    });
+    sessionStorage.setItem(key, '1');
+  });
+}
+
+document.getElementById('add-btn').addEventListener('click', addVessel);
+
+document.getElementById('f-threshold').addEventListener('change', (e) => {
+  threshold = Math.max(1, parseInt(e.target.value) || 2);
+  e.target.value = threshold;
+  localStorage.setItem('alert_threshold_days', threshold);
+  render();
+});
+
+document.getElementById('f-filter-region').addEventListener('change', (e) => {
+  filterRegion = e.target.value;
+  render();
+});
+
+document.getElementById('notif-btn').addEventListener('click', async () => {
+  if(!('Notification' in window)){
+    document.getElementById('notif-status').textContent = 'Non pris en charge par ce navigateur.';
+    return;
+  }
+  const perm = await Notification.requestPermission();
+  document.getElementById('notif-status').textContent =
+    perm === 'granted' ? 'Notifications activées.' : 'Notifications refusées.';
+});
+
+setInterval(() => { render(); checkNotifications(); }, 60000);
+
+loadData();
+</script>
+</body>
+</html>
